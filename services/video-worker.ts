@@ -1,11 +1,25 @@
 import { SandboxedJob } from "bullmq";
-import { readFileSync } from "fs";
+import { mkdir, mkdirSync, readdirSync } from "fs";
 import path from "path";
 import Ffmpeg from "fluent-ffmpeg";
 import { randomUUID } from "crypto";
+import { existsSync } from "fs";
+import { uploadTos3 } from "./s3";
 
-const process = () => {
-  return new Promise((resolve, reject) => {
+interface fileInterface {
+  fileName: string;
+  fileNames: string[];
+  folderPath: string;
+}
+
+const process = (data: any) => {
+  return new Promise<fileInterface>((resolve, reject) => {
+    const fileName = randomUUID();
+    const folderPath = path.join(__dirname, "..", "output", fileName);
+    if (!existsSync(fileName)) {
+      mkdirSync(folderPath);
+    }
+
     Ffmpeg(path.join(__dirname, "..", "./inputs/input.mp4"))
       .outputOptions([
         "-profile:v baseline",
@@ -17,13 +31,13 @@ const process = () => {
         "-hls_list_size 0",
         "-f hls",
       ])
-      .output(`output/${randomUUID()}.m3u8`)
+      .output(`output/${fileName}/${fileName}.m3u8`)
       .on("progress", function (progress: any) {
         console.log("Processing: " + progress.percent + "% done");
       })
       .on("end", function (err: Error, stdout: any, stderr: any) {
-        console.log("Finished processing!" /*, err, stdout, stderr*/);
-        return resolve("hiiiii");
+        const fileNames = readdirSync(folderPath);
+        return resolve({ fileName, fileNames, folderPath });
       })
       .on("error", (err) => {
         return reject(err);
@@ -35,8 +49,11 @@ const process = () => {
 const workerHandler = async (job: SandboxedJob) => {
   // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
 
-  await process();
-
-  console.log("hls", job.data);
+  const folderPath = await process(job.data);
+  await uploadTos3({
+    event: "hls",
+    job: job.data,
+    folderPath,
+  });
 };
 export default workerHandler;
