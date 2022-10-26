@@ -34,7 +34,9 @@ const process = () => {
 
 const workerHandler = async (job: SandboxedJob) => {
   // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
+
   await process();
+
   console.log("hls", job.data);
 };
 export default workerHandler;

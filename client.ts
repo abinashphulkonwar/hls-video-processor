@@ -23,7 +23,7 @@ const array: {
   name: string;
   opts: object;
 }[] = [];
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 1; i++) {
   array.push({
     data: { qux: i, id: "id" },
     name: "hls",

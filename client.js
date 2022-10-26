@@ -41,7 +41,7 @@ const queue = new bullmq_1.Queue("video-prossing", {
 });
 const every = 1000 * 60 * 15;
 const array = [];
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 1; i++) {
     array.push({
         data: { qux: i, id: "id" },
         name: "hls",
