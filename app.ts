@@ -44,6 +44,19 @@ const worker = new Worker(
     concurrency: 1 || cpus().length,
   }
 );
+const workerImage = new Worker(
+  "image-prossing",
+  path.join(__dirname, "services", "image-worker.js"),
+  {
+    connection: {
+      host: process.env.HOST,
+      port: parseInt(process.env.PORT),
+      password: process.env.PASSWORD,
+      name: process.env.NAME,
+    },
+    concurrency: 1 || cpus().length,
+  }
+);
 
 worker.on("completed", (job) => {
   console.log(`${job.id} ${job.data.qux} has completed!`);

@@ -44,7 +44,7 @@ const process = (data) => {
 const workerHandler = async (job) => {
     // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
     const folderPath = await process(job.data);
-    await (0, s3_1.uploadTos3)({
+    await (0, s3_1.uploadVideoTos3)({
         event: "hls",
         job: job.data,
         folderPath,

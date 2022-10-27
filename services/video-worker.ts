@@ -4,7 +4,7 @@ import path from "path";
 import Ffmpeg from "fluent-ffmpeg";
 import { randomUUID } from "crypto";
 import { existsSync } from "fs";
-import { uploadTos3 } from "./s3";
+import { uploadVideoTos3 } from "./s3";
 
 interface fileInterface {
   fileName: string;
@@ -50,7 +50,7 @@ const workerHandler = async (job: SandboxedJob) => {
   // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
 
   const folderPath = await process(job.data);
-  await uploadTos3({
+  await uploadVideoTos3({
     event: "hls",
     job: job.data,
     folderPath,
