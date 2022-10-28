@@ -6,7 +6,7 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpgePath from "@ffmpeg-installer/ffmpeg";
-import { imageProcess, videoProcess } from "./types";
+import { imageProcess, videoAnalytics, videoProcess } from "./types";
 dotenv.config();
 
 //ffmpeg.setFfmpegPath(ffmpgePath.path);
@@ -59,12 +59,23 @@ const workerImage = new Worker(
     concurrency: 4 || cpus().length,
   }
 );
+const workerVideoAnalytics = new Worker(
+  videoAnalytics,
+  path.join(__dirname, "services", "video-analytics-worker.js"),
+  {
+    connection,
+    concurrency: 4 || cpus().length,
+  }
+);
 
 worker.on("completed", (job) => {
   console.log(`${job.id} ${job.data.qux} has completed!`);
 });
 
 workerImage.on("completed", (job) => {
+  console.log(`${job.id} ${job.data.qux} has completed!`);
+});
+workerVideoAnalytics.on("completed", (job) => {
   console.log(`${job.id} ${job.data.qux} has completed!`);
 });
 
@@ -78,6 +89,11 @@ worker.on("failed", (job, err) => {
 workerImage.on("failed", (job, err) => {
   console.log(`${job?.id} has failed with ${err.message}`);
 });
+
+workerVideoAnalytics.on("failed", (job, err) => {
+  console.log(`${job?.id} has failed with ${err.message}`);
+});
+
 worker.on("active", (job, err) => {
   console.log(`${job.id} has started!`);
 });

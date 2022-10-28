@@ -76,10 +76,17 @@ const workerImage = new bullmq_1.Worker(types_1.imageProcess, path.join(__dirnam
     connection,
     concurrency: 4 || (0, os_1.cpus)().length,
 });
+const workerVideoAnalytics = new bullmq_1.Worker(types_1.videoAnalytics, path.join(__dirname, "services", "video-analytics-worker.js"), {
+    connection,
+    concurrency: 4 || (0, os_1.cpus)().length,
+});
 worker.on("completed", (job) => {
     console.log(`${job.id} ${job.data.qux} has completed!`);
 });
 workerImage.on("completed", (job) => {
+    console.log(`${job.id} ${job.data.qux} has completed!`);
+});
+workerVideoAnalytics.on("completed", (job) => {
     console.log(`${job.id} ${job.data.qux} has completed!`);
 });
 worker.on("progress", (job) => {
@@ -89,6 +96,9 @@ worker.on("failed", (job, err) => {
     console.log(`${job === null || job === void 0 ? void 0 : job.id} has failed with ${err.message}`);
 });
 workerImage.on("failed", (job, err) => {
+    console.log(`${job === null || job === void 0 ? void 0 : job.id} has failed with ${err.message}`);
+});
+workerVideoAnalytics.on("failed", (job, err) => {
     console.log(`${job === null || job === void 0 ? void 0 : job.id} has failed with ${err.message}`);
 });
 worker.on("active", (job, err) => {

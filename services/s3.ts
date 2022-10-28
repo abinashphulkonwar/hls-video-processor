@@ -15,10 +15,12 @@ interface getImageS3Interface {
 
 const uploadVideoTos3 = async ({ event, job, folderPath }: hlsInterface) => {
   console.log(event, job, folderPath);
+
   for await (const val of folderPath.fileNames) {
     const currentUploadPath = path.join(folderPath.folderPath, val);
     console.log(currentUploadPath);
     const data = readFileSync(currentUploadPath);
+
     await promises.unlink(currentUploadPath);
   }
   await promises.rmdir(folderPath.folderPath);
