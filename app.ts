@@ -6,6 +6,7 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpgePath from "@ffmpeg-installer/ffmpeg";
+import { imageProcess, videoProcess } from "./types";
 dotenv.config();
 
 //ffmpeg.setFfmpegPath(ffmpgePath.path);
@@ -30,35 +31,40 @@ console.log(cpuUsage(), memoryUsage());
 //   url: process.env.REDIS_URL,
 // });
 
-if (!process.env.PORT) throw new Error("redis env not defiend");
+if (!process.env.PORT) throw new Error("redis port not defiend");
+if (!process.env.HOST) throw new Error("redis host not defiend");
+if (!process.env.PASSWORD) throw new Error("redis password not defiend");
+if (!process.env.NAME) throw new Error("redis name not defiend");
+
+const connection = {
+  host: process.env.HOST,
+  port: parseInt(process.env.PORT),
+  password: process.env.PASSWORD,
+  name: process.env.NAME,
+};
+
 const worker = new Worker(
-  "video-prossing",
+  videoProcess,
   path.join(__dirname, "services", "video-worker.js"),
   {
-    connection: {
-      host: process.env.HOST,
-      port: parseInt(process.env.PORT),
-      password: process.env.PASSWORD,
-      name: process.env.NAME,
-    },
-    concurrency: 1 || cpus().length,
+    connection,
+    concurrency: 2 || cpus().length,
   }
 );
 const workerImage = new Worker(
-  "image-prossing",
+  imageProcess,
   path.join(__dirname, "services", "image-worker.js"),
   {
-    connection: {
-      host: process.env.HOST,
-      port: parseInt(process.env.PORT),
-      password: process.env.PASSWORD,
-      name: process.env.NAME,
-    },
-    concurrency: 1 || cpus().length,
+    connection,
+    concurrency: 4 || cpus().length,
   }
 );
 
 worker.on("completed", (job) => {
+  console.log(`${job.id} ${job.data.qux} has completed!`);
+});
+
+workerImage.on("completed", (job) => {
   console.log(`${job.id} ${job.data.qux} has completed!`);
 });
 
@@ -67,6 +73,9 @@ worker.on("progress", (job) => {
 });
 
 worker.on("failed", (job, err) => {
+  console.log(`${job?.id} has failed with ${err.message}`);
+});
+workerImage.on("failed", (job, err) => {
   console.log(`${job?.id} has failed with ${err.message}`);
 });
 worker.on("active", (job, err) => {

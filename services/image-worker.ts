@@ -6,6 +6,7 @@ import { randomUUID } from "crypto";
 import { existsSync } from "fs";
 import { getS3Image, uploadImageTos3 } from "./s3";
 import sharp from "sharp";
+
 interface fileInterface {
   buffer: Buffer;
 }
@@ -34,11 +35,13 @@ const process = (data: processInterface) => {
 
 const workerHandler = async (job: SandboxedJob) => {
   // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
+  console.time("start");
   const imageData = await getS3Image({
-    bucket: job.data.bucket,
-    key: job.data.key,
+    bucket: job.data.bucket || "s3",
+    key: job.data.key || "s3",
   });
   const { buffer } = await process({ jobData: job.data, imageData: imageData });
   await uploadImageTos3(buffer);
+  console.timeEnd("start");
 };
 export default workerHandler;

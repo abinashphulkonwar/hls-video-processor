@@ -48,12 +48,13 @@ const process = (data: any) => {
 
 const workerHandler = async (job: SandboxedJob) => {
   // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
-
+  console.time("start");
   const folderPath = await process(job.data);
   await uploadVideoTos3({
     event: "hls",
     job: job.data,
     folderPath,
   });
+  console.timeEnd("start");
 };
 export default workerHandler;

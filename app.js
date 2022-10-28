@@ -33,6 +33,7 @@ const process_1 = require("process");
 const dotenv = __importStar(require("dotenv"));
 const path = __importStar(require("path"));
 const fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
+const types_1 = require("./types");
 dotenv.config();
 //ffmpeg.setFfmpegPath(ffmpgePath.path);
 fluent_ffmpeg_1.default.getAvailableCodecs((e, data) => {
@@ -54,32 +55,40 @@ console.log((0, process_1.cpuUsage)(), (0, process_1.memoryUsage)());
 //   url: process.env.REDIS_URL,
 // });
 if (!process.env.PORT)
-    throw new Error("redis env not defiend");
-const worker = new bullmq_1.Worker("video-prossing", path.join(__dirname, "services", "video-worker.js"), {
-    connection: {
-        host: process.env.HOST,
-        port: parseInt(process.env.PORT),
-        password: process.env.PASSWORD,
-        name: process.env.NAME,
-    },
-    concurrency: 1 || (0, os_1.cpus)().length,
+    throw new Error("redis port not defiend");
+if (!process.env.HOST)
+    throw new Error("redis host not defiend");
+if (!process.env.PASSWORD)
+    throw new Error("redis password not defiend");
+if (!process.env.NAME)
+    throw new Error("redis name not defiend");
+const connection = {
+    host: process.env.HOST,
+    port: parseInt(process.env.PORT),
+    password: process.env.PASSWORD,
+    name: process.env.NAME,
+};
+const worker = new bullmq_1.Worker(types_1.videoProcess, path.join(__dirname, "services", "video-worker.js"), {
+    connection,
+    concurrency: 2 || (0, os_1.cpus)().length,
 });
-const workerImage = new bullmq_1.Worker("image-prossing", path.join(__dirname, "services", "image-worker.js"), {
-    connection: {
-        host: process.env.HOST,
-        port: parseInt(process.env.PORT),
-        password: process.env.PASSWORD,
-        name: process.env.NAME,
-    },
-    concurrency: 1 || (0, os_1.cpus)().length,
+const workerImage = new bullmq_1.Worker(types_1.imageProcess, path.join(__dirname, "services", "image-worker.js"), {
+    connection,
+    concurrency: 4 || (0, os_1.cpus)().length,
 });
 worker.on("completed", (job) => {
+    console.log(`${job.id} ${job.data.qux} has completed!`);
+});
+workerImage.on("completed", (job) => {
     console.log(`${job.id} ${job.data.qux} has completed!`);
 });
 worker.on("progress", (job) => {
     console.log(`${job.id} has completed!`);
 });
 worker.on("failed", (job, err) => {
+    console.log(`${job === null || job === void 0 ? void 0 : job.id} has failed with ${err.message}`);
+});
+workerImage.on("failed", (job, err) => {
     console.log(`${job === null || job === void 0 ? void 0 : job.id} has failed with ${err.message}`);
 });
 worker.on("active", (job, err) => {

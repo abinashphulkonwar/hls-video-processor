@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getS3Image = exports.uploadImageTos3 = exports.uploadVideoTos3 = void 0;
+const crypto_1 = require("crypto");
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const uploadVideoTos3 = async ({ event, job, folderPath }) => {
@@ -18,12 +19,14 @@ const uploadVideoTos3 = async ({ event, job, folderPath }) => {
 };
 exports.uploadVideoTos3 = uploadVideoTos3;
 const uploadImageTos3 = async (data) => {
-    console.log(data);
+    //console.log(data);
+    (0, fs_1.writeFileSync)(path_1.default.join(__dirname, "..", "image-output", `${(0, crypto_1.randomUUID)()}.jpg`), data);
 };
 exports.uploadImageTos3 = uploadImageTos3;
 const getS3Image = async (data) => {
     if (!data.bucket && !data.key)
         throw new Error("buckte and key not found");
-    return Buffer.from([0x62, 0x75, 0x66, 0x66, 0x65, 0x72]);
+    const buffer = (0, fs_1.readFileSync)(path_1.default.join(__dirname, "..", "image-input", "hayley-murray-nRz09nr26nM-unsplash.jpg"));
+    return buffer;
 };
 exports.getS3Image = getS3Image;

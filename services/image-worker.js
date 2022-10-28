@@ -25,11 +25,13 @@ const process = (data) => {
 };
 const workerHandler = async (job) => {
     // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
+    console.time("start");
     const imageData = await (0, s3_1.getS3Image)({
-        bucket: job.data.bucket,
-        key: job.data.key,
+        bucket: job.data.bucket || "s3",
+        key: job.data.key || "s3",
     });
     const { buffer } = await process({ jobData: job.data, imageData: imageData });
     await (0, s3_1.uploadImageTos3)(buffer);
+    console.timeEnd("start");
 };
 exports.default = workerHandler;

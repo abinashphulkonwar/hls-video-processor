@@ -1,4 +1,5 @@
-import { readFileSync, unlink, promises } from "fs";
+import { randomUUID } from "crypto";
+import { readFileSync, unlink, promises, readSync, writeFileSync } from "fs";
 import path from "path";
 
 interface hlsInterface {
@@ -23,13 +24,26 @@ const uploadVideoTos3 = async ({ event, job, folderPath }: hlsInterface) => {
   await promises.rmdir(folderPath.folderPath);
 };
 const uploadImageTos3 = async (data: Buffer) => {
-  console.log(data);
+  //console.log(data);
+
+  writeFileSync(
+    path.join(__dirname, "..", "image-output", `${randomUUID()}.jpg`),
+    data
+  );
 };
 
 const getS3Image = async (data: getImageS3Interface): Promise<Buffer> => {
   if (!data.bucket && !data.key) throw new Error("buckte and key not found");
 
-  return Buffer.from([0x62, 0x75, 0x66, 0x66, 0x65, 0x72]);
+  const buffer = readFileSync(
+    path.join(
+      __dirname,
+      "..",
+      "image-input",
+      "hayley-murray-nRz09nr26nM-unsplash.jpg"
+    )
+  );
+  return buffer;
 };
 
 export { uploadVideoTos3, uploadImageTos3, getS3Image };
