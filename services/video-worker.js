@@ -8,11 +8,9 @@ const path_1 = __importDefault(require("path"));
 const fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
 const crypto_1 = require("crypto");
 const fs_2 = require("fs");
-const s3_1 = require("./s3");
-const process = (data) => {
+const process = (data, quality = "854x480", fileName = "") => {
     return new Promise((resolve, reject) => {
-        const fileName = (0, crypto_1.randomUUID)();
-        const folderPath = path_1.default.join(__dirname, "..", "output", fileName);
+        const folderPath = path_1.default.join(__dirname, "..", "output", fileName, quality);
         if (!(0, fs_2.existsSync)(fileName)) {
             (0, fs_1.mkdirSync)(folderPath);
         }
@@ -20,7 +18,7 @@ const process = (data) => {
             .outputOptions([
             "-profile:v baseline",
             "-level 3.0",
-            "-s 854x480",
+            `-s ${quality}`,
             "-r 30",
             "-start_number 0",
             "-hls_time 10",
@@ -44,12 +42,19 @@ const process = (data) => {
 const workerHandler = async (job) => {
     // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
     console.time("start");
-    const folderPath = await process(job.data);
-    await (0, s3_1.uploadVideoTos3)({
-        event: "hls",
-        job: job.data,
-        folderPath,
-    });
+    const fileName = (0, crypto_1.randomUUID)();
+    const folderPath = path_1.default.join(__dirname, "..", "output", fileName);
+    if (!(0, fs_2.existsSync)(fileName)) {
+        (0, fs_1.mkdirSync)(folderPath);
+    }
+    const process640x360 = await process(job === null || job === void 0 ? void 0 : job.data, "640x360", fileName);
+    const process1280x720 = await process(job === null || job === void 0 ? void 0 : job.data, "1280x720", fileName);
+    // await uploadVideoTos3({
+    //   event: "hls",
+    //   job: job.data,
+    //   folderPath,
+    // });
     console.timeEnd("start");
 };
+workerHandler(null);
 exports.default = workerHandler;
