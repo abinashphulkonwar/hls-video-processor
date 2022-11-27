@@ -45,8 +45,8 @@ const process = (
 
     // if (quality == qualityEnum["1280x720"])
     //   indexFile = qualityFileName["1280x720"];
-
-    Ffmpeg(path.join(__dirname, "..", "./inputs/20221002_203427.mp4"))
+    // 20221002_203427
+    Ffmpeg(path.join(__dirname, "..", "./inputs/input.mp4"))
       .outputOptions([
         "-profile:v baseline",
         "-level 3.0",
