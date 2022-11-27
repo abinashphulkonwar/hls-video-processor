@@ -39,8 +39,8 @@ const process = (
       indexFile = qualityFileName["640x360"];
     if (quality == qualityEnum["1280x720"])
       indexFile = qualityFileName["1280x720"];
-    // 20221002_203427
-    Ffmpeg(path.join(__dirname, "..", "./inputs/out.mp4"))
+
+    Ffmpeg(path.join(__dirname, "..", "./inputs/20221002_203427.mp4"))
       .outputOptions([
         "-profile:v baseline",
         "-level 3.0",
@@ -83,6 +83,7 @@ const workerHandler = async (job: SandboxedJob | null) => {
     "1.5M",
     5
   );
+
   const process480x240 = await process(
     job?.data,
     qualityEnum["480x240"],
