@@ -27,20 +27,24 @@ enum qualityFileName {
 const process = (
   data: any,
   quality: qualityEnum,
-  fileName = "",
-  bitrate = "8M",
-  duration = 10
+  fileName: string = "",
+  bitrate: string = "8M",
+  duration: number = 10
 ) => {
   return new Promise<fileInterface>((resolve, reject) => {
     const folderPath = path.join(__dirname, "..", "output", fileName, quality);
+
     if (!existsSync(fileName)) {
       mkdirSync(folderPath);
     }
+
     let indexFile: string = "index";
-    if (quality == qualityEnum["640x360"])
-      indexFile = qualityFileName["640x360"];
-    if (quality == qualityEnum["1280x720"])
-      indexFile = qualityFileName["1280x720"];
+
+    // if (quality == qualityEnum["640x360"])
+    //   indexFile = qualityFileName["640x360"];
+
+    // if (quality == qualityEnum["1280x720"])
+    //   indexFile = qualityFileName["1280x720"];
 
     Ffmpeg(path.join(__dirname, "..", "./inputs/20221002_203427.mp4"))
       .outputOptions([
@@ -109,11 +113,11 @@ const workerHandler = async (job: SandboxedJob | null) => {
     folderPath + "/index.m3u8",
     `#EXTM3U
 #EXT-X-STREAM-INF:BANDWIDTH=258157,RESOLUTION=480x240
-480x240/240_index.m3u8
+480x240/index.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=858157,RESOLUTION=640x360
-640x360/360_index.m3u8
+640x360/index.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=2000000,RESOLUTION=1280x720
-1280x720/720_index.m3u8`
+1280x720/index.m3u8`
   );
 
   await uploadVideoTos3({
