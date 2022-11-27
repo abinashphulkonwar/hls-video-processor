@@ -116,6 +116,7 @@ const workerHandler = async (job: SandboxedJob | null) => {
     job: job?.data,
     folderPath: process640x360,
   });
+
   await uploadVideoTos3({
     event: "hls",
     job: job?.data,
