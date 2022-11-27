@@ -22,6 +22,7 @@ enum qualityFileName {
   "640x360" = "360_index",
   "480x240" = "240_index",
 }
+
 const process = (
   data: any,
   quality: qualityEnum,
@@ -70,12 +71,15 @@ const process = (
 
 const workerHandler = async (job: SandboxedJob | null) => {
   // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
+
   console.time("start");
   const fileName = randomUUID();
   const folderPath = path.join(__dirname, "..", "output", fileName);
+
   if (!existsSync(fileName)) {
     mkdirSync(folderPath);
   }
+
   const process640x360 = await process(
     job?.data,
     qualityEnum["640x360"],
