@@ -17,6 +17,7 @@ enum qualityEnum {
   "1280x720" = "1280x720",
   "640x360" = "640x360",
 }
+
 enum qualityFileName {
   "1280x720" = "720_index",
   "640x360" = "360_index",
