@@ -109,7 +109,7 @@ const workerHandler = async (job: SandboxedJob | null) => {
 #EXT-X-STREAM-INF:BANDWIDTH=2000000,RESOLUTION=1280x720
 1280x720/720_index.m3u8`
   );
-  return;
+
   await uploadVideoTos3({
     event: "hls",
     job: job?.data,
