@@ -46,7 +46,7 @@ const process = (
     // if (quality == qualityEnum["1280x720"])
     //   indexFile = qualityFileName["1280x720"];
     // 20221002_203427
-    Ffmpeg(path.join(__dirname, "..", "./inputs/input.mp4"))
+    Ffmpeg(path.join(__dirname, "..", "./inputs/20221002_203427.mp4"))
       .outputOptions([
         "-profile:v baseline",
         "-level 3.0",
@@ -78,37 +78,39 @@ const workerHandler = async (job: SandboxedJob | null) => {
   // const data = readFileSync(path.join(__dirname, "..", "./inputs/input.mp4"));
 
   console.time("start");
-  const fileName = randomUUID();
+  const fileName = "data-" + randomUUID();
   const folderPath = path.join(__dirname, "..", "output", fileName);
 
   if (!existsSync(fileName)) {
     mkdirSync(folderPath);
   }
-
+  console.time("process640x360");
   const process640x360 = await process(
     job?.data,
     qualityEnum["640x360"],
     fileName,
     "1.5M",
-    5
+    2
   );
-
+  console.timeEnd("process640x360");
+  console.time("process480x240");
   const process480x240 = await process(
     job?.data,
     qualityEnum["480x240"],
     fileName,
     "1M",
-    5
+    2
   );
-
+  console.timeEnd("process480x240");
+  console.time("process1280x720");
   const process1280x720 = await process(
     job?.data,
     qualityEnum["1280x720"],
     fileName,
     "5M",
-    10
+    2
   );
-
+  console.timeEnd("process1280x720");
   writeFileSync(
     folderPath + "/index.m3u8",
     `#EXTM3U
@@ -126,11 +128,11 @@ const workerHandler = async (job: SandboxedJob | null) => {
     folderPath: process640x360,
   });
 
-  await uploadVideoTos3({
-    event: "hls",
-    job: job?.data,
-    folderPath: process1280x720,
-  });
+  // await uploadVideoTos3({
+  //   event: "hls",
+  //   job: job?.data,
+  //   folderPath: process1280x720,
+  // });
   console.timeEnd("start");
 };
 
